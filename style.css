@@ -1,0 +1,63 @@
+body {
+  margin: 0;
+  overflow: hidden;
+  font-family: 'Arial', sans-serif;
+  background: linear-gradient(to top, #87ceeb, #ffffff);
+}
+.screen {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: linear-gradient(to top, #87ceeb, #ffffff);
+  text-align: center;
+}
+.hidden { display: none; }
+#game {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background: url('https://images.unsplash.com/photo-1612790054123-d6b0efcf45c6?crop=entropy&cs=tinysrgb&fit=crop&h=800&w=1200') center/cover no-repeat;
+}
+#dog {
+  position: absolute;
+  left: 30px;
+  width: 80px;
+  transition: top 0.2s;
+}
+.obstacle {
+  position: absolute;
+  right: -60px;
+  width: 50px;
+  animation: moveObstacle 3s linear forwards;
+}
+@keyframes moveObstacle {
+  from { right: -60px; }
+  to { right: 110vw; }
+}
+#score, #lives {
+  position: absolute;
+  top: 10px;
+  background: rgba(255,255,255,0.7);
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 18px;
+}
+#score { left: 10px; }
+#lives { right: 10px; }
+#controls {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+#controls button, .screen button {
+  padding: 10px 20px;
+  margin: 5px;
+  font-size: 18px;
+  background: #ff6600;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+}
