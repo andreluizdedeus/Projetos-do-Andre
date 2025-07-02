@@ -1,43 +1,29 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>jogo da lia  e fred</title>
-  <link rel="stylesheet" href="style.css">
-</head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pula Prédios Modern</title>
+    <link rel="stylesheet" href="style.css"> </head>
 <body>
-  <!-- Tela inicial -->
-  <div id="start-screen" class="screen">
-    <h1>🐶 JOGO DA LIA E FRED🏃‍♂️</h1>
-    <button onclick="startGame()">🎮 Jogar</button>
-    <p>Recorde: <span id="best-score">0</span></p>
-  </div>
+    <div id="game-container">
+        <div class="background-layer"></div>
+        <div id="ground"></div>
+        <div id="character"></div>
+        <div id="score">Pontos: 0</div>
 
-  <!-- Jogo -->
-  <div id="game" class="hidden">
-    <img id="dog" src="https://pngimg.com/uploads/dog/dog_PNG50348.png" alt="Dog">
-    <div id="score">Pontos: 0</div>
-    <div id="lives">❤️❤️❤️</div>
-    <div id="controls">
-      <button onclick="moveUp()">⬆️</button>
-      <button onclick="moveDown()">⬇️</button>
+        <div id="start-screen" class="game-screen active">
+            <h1>PULA PRÉDIOS</h1>
+            <p>Pressione ESPAÇO ou toque na tela para pular!</p>
+            <button class="game-button" id="start-button">COMEÇAR</button>
+        </div>
+
+        <div id="game-over-screen" class="game-screen">
+            <h1>GAME OVER!</h1>
+            <p id="final-score">Pontos: 0</p>
+            <button class="game-button" id="restart-button">JOGAR NOVAMENTE</button>
+        </div>
     </div>
-  </div>
 
-  <!-- Game Over -->
-  <div id="game-over-screen" class="screen hidden">
-    <h2>Fim de Jogo 😢</h2>
-    <p>Sua pontuação: <span id="final-score">0</span></p>
-    <p>Recorde: <span id="final-best-score">0</span></p>
-    <button onclick="restartGame()">🔄 Jogar Novamente</button>
-  </div>
-
-<audio id="hitSound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_51f39062c2.mp3"></audio>
-<audio id="catchSound" src="https://cdn.pixabay.com/audio/2022/02/10/audio_9821b7b10b.mp3"></audio>
-<audio id="jumpSound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_c184fa13fb.mp3"></audio>
-<audio id="hitSound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_51f39062c2.mp3" preload="auto"></audio>
-  
-   <script src="script.js"></script>
-</body>
+    <script src="script.js"></script> </body>
 </html>
