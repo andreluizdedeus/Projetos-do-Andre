@@ -1,231 +1,244 @@
-/* Reset básico e fontes */
-body {
-    margin: 0;
-    overflow: hidden;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f0f8ff; /* Azul claro de fundo */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
+const gameContainer = document.getElementById('game-container');
+const character = document.getElementById('character');
+const scoreDisplay = document.getElementById('score');
+const startScreen = document.getElementById('start-screen');
+const gameOverScreen = document.getElementById('game-over-screen');
+const startButton = document.getElementById('start-button');
+const restartButton = document.getElementById('restart-button');
+const finalScoreDisplay = document.getElementById('final-score');
+
+// Sons (Lembre-se de baixar e hospedar estes sons em seu próprio projeto!)
+// Por exemplo, crie uma pasta 'sounds' e coloque os mp3 lá: 'sounds/jump.mp3'
+// Se for usar os links abaixo, esteja ciente que eles podem mudar ou não funcionar no futuro.
+const jumpSound = new Audio('https://www.soundjay.com/buttons/beep-07.mp3'); 
+const coinSound = new Audio('https://www.soundjay.com/misc/collecting-points.mp3');
+const gameOverSound = new Audio('https://www.soundjay.com/misc/game-over-3.mp3');
+
+let characterBottom = parseFloat(getComputedStyle(character).bottom);
+let characterLeft = parseFloat(getComputedStyle(character).left);
+let isJumping = false;
+let isGameOver = false;
+let score = 0;
+let gravity = 0.5;
+let jumpStrength = 10;
+let buildings = []; 
+let buildingSpeed = 3;
+let buildingInterval;
+let gameLoopInterval;
+
+function initializeGame() {
+    characterBottom = parseFloat(getComputedStyle(character).bottom);
+    character.style.bottom = characterBottom + 'px';
+    character.style.left = characterLeft + 'px';
+    character.style.transform = 'none'; 
+    isJumping = false;
+    isGameOver = false;
+    score = 0;
+    scoreDisplay.textContent = 'Pontos: 0';
+    
+    // Remove todos os prédios e moedas existentes
+    buildings.forEach(el => el.remove());
+    buildings = [];
+    
+    gameOverScreen.classList.remove('active');
+    startScreen.classList.remove('active');
 }
 
-/* Container do jogo - Responsivo */
-#game-container {
-    width: 90vw; /* 90% da largura da viewport */
-    max-width: 800px; /* Limite máximo para telas grandes */
-    height: 50vh; /* 50% da altura da viewport */
-    max-height: 450px; /* Limite máximo */
-    background: linear-gradient(to bottom, #87CEEB, #AEC6CF); /* Gradiente de céu */
-    position: relative;
-    overflow: hidden; /* Esconde elementos que saem do container */
-    border-radius: 15px; /* Cantos arredondados */
-    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+function startGame() {
+    initializeGame();
+    gameLoopInterval = setInterval(gameLoop, 20); 
+
+    buildingInterval = setInterval(generateBuilding, 1500); 
 }
 
-/* Camada de fundo (para nuvens ou estrelas) */
-.background-layer {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 200%; /* Para permitir movimento */
-    height: 100%;
-    background: url('https://www.transparenttextures.com/patterns/clean-textile.png') repeat; /* Exemplo de textura */
-    /* Ou adicione nuvens aqui */
-    animation: backgroundMove 60s linear infinite; /* Movimento lento */
-    opacity: 0.1;
+function gameLoop() {
+    applyGravity();
+    moveElements();
+    checkCollision(); 
 }
 
-@keyframes backgroundMove {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
-}
+function applyGravity() {
+    if (!isJumping) {
+        characterBottom -= gravity;
+        character.style.bottom = characterBottom + 'px';
 
-/* Chão (Base para os prédios) */
-#ground {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 15%; /* Altura do chão */
-    background-color: #4CAF50; /* Verde grama */
-    border-top: 5px solid #388E3C;
-}
-
-/* Personagem */
-#character {
-    width: 8vw; /* Relativo à largura da viewport */
-    max-width: 60px;
-    height: 10vw; /* Relativo à largura da viewport */
-    max-height: 80px;
-    background-color: #FFEB3B; /* Amarelo vibrante */
-    border-radius: 5px; /* Bordas levemente arredondadas */
-    position: absolute;
-    bottom: 15%; /* Acima do chão */
-    left: 10%;
-    transition: transform 0.2s ease-out, bottom 0.2s ease-out; /* Transição para pulo e squash/stretch */
-    z-index: 10;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-}
-
-#character.squash {
-    transform: scaleY(0.8) scaleX(1.1);
-}
-#character.stretch {
-    transform: scaleY(1.1) scaleX(0.9);
-}
-
-/* Prédios */
-.building {
-    min-width: 8vw; /* Largura mínima relativa */
-    max-width: 120px;
-    min-height: 25%; /* Altura mínima relativa */
-    max-height: 80%;
-    background-color: #607D8B; /* Cinza azulado */
-    position: absolute;
-    bottom: 15%; /* Acima do chão */
-    left: 100%; /* Começa fora da tela */
-    border-radius: 8px 8px 0 0; /* Cantos superiores arredondados */
-    box-shadow: 0 -5px 10px rgba(0,0,0,0.2) inset;
-    transition: background-color 0.1s ease-in-out;
-    will-change: transform; /* Otimização para animação */
-}
-.building.dark {
-    background-color: #455A64; /* Prédio mais escuro */
-}
-.building::before { /* Janelas */
-    content: '';
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    right: 10px;
-    bottom: 10px;
-    background-image:
-        linear-gradient(to right,
-            rgba(255,255,255,0.2) 1px, transparent 1px),
-        linear-gradient(to bottom,
-            rgba(255,255,255,0.2) 1px, transparent 1px);
-    background-size: 20px 20px; /* Tamanho das janelas */
-    background-repeat: repeat;
-}
-
-/* Moedas */
-.coin {
-    width: 3vw;
-    max-width: 25px;
-    height: 3vw;
-    max-height: 25px;
-    background: radial-gradient(circle at 50% 50%, #FFD700, #DAA520); /* Gradiente dourado */
-    border-radius: 50%;
-    position: absolute;
-    transform: rotateY(0deg);
-    animation: coinSpin 1.5s linear infinite;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-    z-index: 9;
-}
-
-@keyframes coinSpin {
-    0% { transform: rotateY(0deg); }
-    100% { transform: rotateY(360deg); }
-}
-
-/* Placar de Pontos */
-#score {
-    position: absolute;
-    top: 2vh;
-    left: 2vw;
-    color: #333;
-    font-size: 3vh;
-    font-weight: bold;
-    text-shadow: 1px 1px 2px rgba(255,255,255,0.5);
-    z-index: 20;
-}
-
-/* Telas de Início/Fim de Jogo */
-.game-screen {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    color: white;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    z-index: 100;
-    backdrop-filter: blur(5px);
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-}
-
-.game-screen.active {
-    opacity: 1;
-    visibility: visible;
-}
-
-.game-screen h1 {
-    font-size: 5vh;
-    margin-bottom: 2vh;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-}
-
-.game-screen p {
-    font-size: 3vh;
-    margin-bottom: 3vh;
-}
-
-.game-button {
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    padding: 2vh 4vw;
-    font-size: 3vh;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.1s ease;
-    box-shadow: 0 5px 10px rgba(0,0,0,0.3);
-}
-
-.game-button:hover {
-    background-color: #45a049;
-    transform: translateY(-2px);
-}
-.game-button:active {
-    transform: translateY(0);
-}
-
-/* Efeitos para telas pequenas (Mobile) */
-@media (max-width: 600px) {
-    #game-container {
-        width: 95vw;
-        height: 60vh;
-    }
-    #character {
-        width: 10vw;
-        height: 12vw;
-    }
-    .building {
-        min-width: 10vw;
-    }
-    .coin {
-        width: 4vw;
-        height: 4vw;
-    }
-    #score {
-        font-size: 3.5vh;
-    }
-    .game-screen h1 {
-        font-size: 6vh;
-    }
-    .game-screen p {
-        font-size: 3.5vh;
-    }
-    .game-button {
-        padding: 2.5vh 6vw;
-        font-size: 3.5vh;
+        if (characterBottom <= parseFloat(getComputedStyle(document.getElementById('ground')).height)) {
+            characterBottom = parseFloat(getComputedStyle(document.getElementById('ground')).height);
+            character.style.bottom = characterBottom + 'px';
+        }
     }
 }
+
+function jump() {
+    if (!isJumping && !isGameOver) {
+        isJumping = true;
+        jumpSound.play(); 
+        
+        character.classList.add('squash');
+        setTimeout(() => {
+            character.classList.remove('squash');
+            character.classList.add('stretch'); 
+            let jumpHeight = characterBottom + (gameContainer.offsetHeight * 0.35); // Altura de pulo relativa ao container
+            let upInterval = setInterval(() => {
+                if (characterBottom < jumpHeight && isJumping) {
+                    characterBottom += jumpStrength;
+                    character.style.bottom = characterBottom + 'px';
+                } else {
+                    clearInterval(upInterval);
+                    character.classList.remove('stretch');
+                    let downInterval = setInterval(() => {
+                        if (characterBottom > parseFloat(getComputedStyle(document.getElementById('ground')).height) && isJumping) {
+                            characterBottom -= jumpStrength * 0.8; 
+                            character.style.bottom = characterBottom + 'px';
+                        } else {
+                            clearInterval(downInterval);
+                            characterBottom = parseFloat(getComputedStyle(document.getElementById('ground')).height);
+                            character.style.bottom = characterBottom + 'px';
+                            isJumping = false;
+                        }
+                    }, 20);
+                }
+            }, 20);
+        }, 100); 
+    }
+}
+
+function generateBuilding() {
+    if (isGameOver) return;
+
+    const building = document.createElement('div');
+    building.classList.add('building');
+    if (Math.random() > 0.5) { 
+        building.classList.add('dark');
+    }
+
+    let minHeight = gameContainer.offsetHeight * 0.25; 
+    let maxHeight = gameContainer.offsetHeight * 0.70; 
+    let buildingHeight = Math.random() * (maxHeight - minHeight) + minHeight;
+    
+    building.style.height = buildingHeight + 'px';
+    building.style.width = (Math.random() * (gameContainer.offsetWidth * 0.08) + gameContainer.offsetWidth * 0.05) + 'px'; 
+    building.style.left = gameContainer.offsetWidth + 'px';
+    gameContainer.appendChild(building);
+    buildings.push(building);
+
+    // Gera uma moeda no prédio
+    if (Math.random() > 0.6) { 
+        const coin = document.createElement('div');
+        coin.classList.add('coin');
+        // Calcula a posição da moeda relativa ao prédio
+        let coinLeftOffset = Math.random() * (parseInt(building.style.width) - parseFloat(getComputedStyle(coin).width));
+        coin.style.left = (parseInt(building.style.left) + coinLeftOffset) + 'px';
+        coin.style.bottom = (buildingHeight + parseFloat(getComputedStyle(document.getElementById('ground')).height) + 15) + 'px'; 
+        gameContainer.appendChild(coin);
+        buildings.push(coin);
+    }
+}
+
+function moveElements() {
+    buildings = buildings.filter(element => {
+        let currentLeft = parseInt(element.style.left);
+        element.style.left = (currentLeft - buildingSpeed) + 'px';
+        return currentLeft + element.offsetWidth > 0;
+    });
+}
+
+function checkCollision() {
+    const charRect = character.getBoundingClientRect();
+    const groundHeight = parseFloat(getComputedStyle(document.getElementById('ground')).height);
+    let onBuilding = false;
+
+    buildings.forEach(element => {
+        const elemRect = element.getBoundingClientRect();
+
+        // Colisão com Moeda
+        if (element.classList.contains('coin')) {
+            if (
+                charRect.left < elemRect.right &&
+            charRect.right > elemRect.left &&
+            charRect.top < elemRect.bottom &&
+            charRect.bottom > elemRect.top
+            ) {
+                coinSound.play();
+                score++;
+                scoreDisplay.textContent = 'Pontos: ' + score;
+                element.remove();
+                // Remove a moeda do array de buildings
+                buildings = buildings.filter(b => b !== element); 
+                return; 
+            }
+        } 
+        // Colisão com Prédio (para pouso)
+        else if (element.classList.contains('building')) {
+            // Se o personagem está caindo e acima de um prédio (apenas topo)
+            if (charRect.bottom >= elemRect.top && charRect.bottom <= elemRect.top + (charRect.height * 0.2) && // Pequena margem para pouso no topo
+                charRect.right > elemRect.left + 5 && charRect.left < elemRect.right - 5 && // Margem para não cair da beirada
+                characterBottom > groundHeight) 
+            {
+                characterBottom = elemRect.height + groundHeight; 
+                character.style.bottom = characterBottom + 'px';
+                isJumping = false;
+                onBuilding = true;
+            }
+        }
+    });
+
+    // Game Over: Cair entre os prédios ou no chão sem estar sobre um prédio
+    if (!isJumping && characterBottom <= groundHeight && !onBuilding && !isGameOver) {
+        let foundPlatformBelow = false;
+        buildings.forEach(b => {
+            if (b.classList.contains('building')) {
+                const bRect = b.getBoundingClientRect();
+                // Verifica se há um prédio *horizontalmente* abaixo do personagem E se o personagem está *abaixo* do topo desse prédio
+                if (charRect.right > bRect.left && charRect.left < bRect.right && characterBottom < bRect.height + groundHeight) {
+                    foundPlatformBelow = true;
+                }
+            }
+        });
+
+        // Se o personagem está no nível do chão (ou abaixo) e não há plataforma abaixo dele, é Game Over
+        if (!foundPlatformBelow) {
+            gameOver();
+        }
+    }
+}
+
+
+function gameOver() {
+    if (isGameOver) return; 
+
+    isGameOver = true;
+    clearInterval(gameLoopInterval);
+    clearInterval(buildingInterval);
+    gameOverSound.play();
+    finalScoreDisplay.textContent = 'Pontos: ' + score;
+    gameOverScreen.classList.add('active');
+}
+
+// Eventos de Input
+document.addEventListener('keydown', (e) => {
+    if (e.code === 'Space' && !isGameOver && startScreen.classList.contains('active')) {
+        // Se o jogo ainda não começou e o espaço é pressionado, inicia
+        startGame();
+    } else if (e.code === 'Space' && !isGameOver) {
+        jump();
+    }
+});
+
+// Para telas de toque (celular)
+gameContainer.addEventListener('touchstart', (e) => {
+    if (!isGameOver && startScreen.classList.contains('active')) {
+        // Se o jogo ainda não começou e a tela é tocada, inicia
+        startGame();
+    } else if (!isGameOver) {
+        jump();
+    }
+});
+
+// Botões das telas
+startButton.addEventListener('click', startGame);
+restartButton.addEventListener('click', startGame);
+
+// Inicializa a tela de início
+startScreen.classList.add('active');
+
