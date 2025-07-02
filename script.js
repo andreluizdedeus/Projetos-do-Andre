@@ -1,6 +1,5 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
-
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
@@ -17,13 +16,31 @@ let player = {
 
 let buildings = [];
 let gameRunning = false;
+let score = 0;
+let scoreInterval;
 
 function startGame() {
   document.getElementById("startScreen").style.display = "none";
+  document.getElementById("gameOverScreen").style.display = "none";
   canvas.style.display = "block";
+  score = 0;
+  updateScore();
+  buildings = [];
   gameRunning = true;
+  player.y = canvas.height - player.height;
+  player.velocityY = 0;
+  player.grounded = false;
   spawnBuilding();
+  scoreInterval = setInterval(() => {
+    score++;
+    updateScore();
+  }, 1000);
   animate();
+}
+
+function updateScore() {
+  document.getElementById("score").innerText = score;
+  document.getElementById("finalScore").innerText = score;
 }
 
 function spawnBuilding() {
@@ -34,7 +51,9 @@ function spawnBuilding() {
     height: 100
   });
 
-  setTimeout(spawnBuilding, 2000);
+  if (gameRunning) {
+    setTimeout(spawnBuilding, 2000);
+  }
 }
 
 function jump() {
@@ -67,7 +86,6 @@ function animate() {
     building.x -= 5;
     ctx.fillRect(building.x, building.y, building.width, building.height);
 
-    // Verifica colisão
     if (
       player.x < building.x + building.width &&
       player.x + player.width > building.x &&
@@ -77,7 +95,6 @@ function animate() {
       endGame();
     }
 
-    // Remove prédios fora da tela
     if (building.x + building.width < 0) {
       buildings.splice(index, 1);
     }
@@ -87,8 +104,14 @@ function animate() {
 }
 
 function endGame() {
-  alert("Game Over!");
-  location.reload();
+  gameRunning = false;
+  clearInterval(scoreInterval);
+  canvas.style.display = "none";
+  document.getElementById("gameOverScreen").style.display = "block";
+}
+
+function restartGame() {
+  startGame();
 }
 
 // Controles
