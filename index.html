@@ -1,23 +1,20 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-    <title>Pula Prédios Modern</title>
-    <link rel="stylesheet" href="style.css"> 
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pula Prédios</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <div id="game-container">
-        <div id="start-screen" class="game-screen active">
-            <h1>PULA PRÉDIOS</h1>
-            <p>Pressione ESPAÇO ou toque na tela para pular!</p>
-            <button class="game-button" id="start-button">COMEÇAR</button>
-        </div>
+  <div id="startScreen">
+    <h1>PULA PREDIOS</h1>
+    <p>Pressione ESPAÇO ou toque na tela para pular!</p>
+    <button onclick="startGame()">COMEÇAR</button>
+  </div>
 
-        <div id="game-over-screen" class="game-screen">
-            <h1>GAME OVER!</h1>
-            <p id="final-score">Pontos: 0</p>
-            <button class="game-button" id="restart-button">JOGAR NOVAMENTE</button>
-        </div>
-    </div>
+  <canvas id="gameCanvas"></canvas>
 
-    <script src="script.js"></script> </body>
+  <script src="script.js" defer></script>
+</body>
 </html>
