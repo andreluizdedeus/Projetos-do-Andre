@@ -7,10 +7,20 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="startScreen">
-    <h1>PULA PREDIOS</h1>
-    <p>Pressione ESPAÇO ou toque na tela para pular!</p>
+  <div id="startScreen" class="overlay">
+    <h1>PULA PRÉDIOS</h1>
+    <p>Pressione <strong>ESPAÇO</strong> ou toque na tela para pular!</p>
     <button onclick="startGame()">COMEÇAR</button>
+  </div>
+
+  <div id="gameOverScreen" class="overlay" style="display: none;">
+    <h2>Game Over</h2>
+    <p>Sua pontuação: <span id="finalScore">0</span></p>
+    <button onclick="restartGame()">JOGAR NOVAMENTE</button>
+  </div>
+
+  <div id="hud">
+    <span>Pontuação: <span id="score">0</span></span>
   </div>
 
   <canvas id="gameCanvas"></canvas>
