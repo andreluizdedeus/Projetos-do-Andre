@@ -169,7 +169,7 @@ function checkCollision() {
             }
         } 
         // Colisão com Prédio (para pouso)
-        else if (element.classList.contains('building')) {
+       else if (element.classList.contains('building')) {
             // Se o personagem está caindo e acima de um prédio (apenas topo)
             if (charRect.bottom >= elemRect.top && charRect.bottom <= elemRect.top + (charRect.height * 0.2) && // Pequena margem para pouso no topo
                 charRect.right > elemRect.left + 5 && charRect.left < elemRect.right - 5 && // Margem para não cair da beirada
@@ -241,4 +241,3 @@ restartButton.addEventListener('click', startGame);
 
 // Inicializa a tela de início
 startScreen.classList.add('active');
-
