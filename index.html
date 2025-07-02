@@ -21,9 +21,15 @@
 
   <div id="hud">
     <span>Pontuação: <span id="score">0</span></span>
+    <button id="muteButton" onclick="toggleSound()">🔊</button>
   </div>
 
   <canvas id="gameCanvas"></canvas>
+
+  <!-- Sons -->
+  <audio id="jumpSound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_661de257f2.mp3"></audio>
+  <audio id="hitSound" src="https://cdn.pixabay.com/audio/2022/10/26/audio_4b45c4183c.mp3"></audio>
+  <audio id="bgMusic" src="https://cdn.pixabay.com/audio/2023/03/30/audio_9f0e1dc4a3.mp3" loop></audio>
 
   <script src="script.js" defer></script>
 </body>
